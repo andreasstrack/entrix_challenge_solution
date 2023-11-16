@@ -56,7 +56,7 @@ export function getCodeLambdaB(): string {
         "    save_to_s3(data=event, filename=f\"orders/order_{dt.datetime.now(dt.timezone.utc).isoformat()}\")"
 }
 
-export function getCodePostLambda(): string {
+export function getCodePostOrdersLambda(): string {
     return "import logging\n" +
         "import json\n" +
         "import os\n" +

@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
 import * as EntrixChallenge from '../lib/entrix_challenge-stack';
 import assert = require("assert");
-import {createStagedStacks} from "../lib/staging";
+import {createStagedStacks, stageConfigurations} from "../lib/staging";
 
 test('S3 Bucket Created', () => {
     const app = new cdk.App();
@@ -22,5 +22,5 @@ test('S3 Bucket Created for all stages when Stage is undefined', () => {
     const stacks = createStagedStacks(app,undefined);
 
     // THEN
-    expect(stacks).toHaveLength( 3);
+    expect(stacks).toHaveLength( stageConfigurations.length);
 });

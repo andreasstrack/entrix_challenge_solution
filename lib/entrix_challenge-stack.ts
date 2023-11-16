@@ -1,14 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {stagedId} from "./util";
+import {DataPipelineStack} from "./data_pipeline/data_pipeline-stack";
 
 export class EntrixChallengeStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, stage: string, props?: cdk.StackProps) {
+    constructor(scope: Construct, id: string, stage: string, props: cdk.StackProps) {
         super(scope, stagedId(id, stage), props);
 
-        const bucket = new cdk.aws_s3.Bucket(this, stagedId('OrderResultsBucket', stage), {
-                bucketName: stagedId("order-results", stage.toLowerCase()),
-            }
-        )
+        const dataPipelineStack = new DataPipelineStack(this, "DataPipeline", stage, props);
     }
 }

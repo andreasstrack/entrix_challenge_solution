@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import {EntrixChallengeStack} from "./entrix_challenge-stack";
+import {EntrixChallengeStack} from "../entrix_challenge-stack";
 import {App} from "aws-cdk-lib";
 
 export const stageConfigurations = [

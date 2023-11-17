@@ -4,6 +4,7 @@ import { Template } from 'aws-cdk-lib/assertions';
 import {DataPipelineStack} from "../lib/data_pipeline/data_pipeline-stack";
 import {getCodeLambdaA, getCodeLambdaB} from "../code/lambda_code";
 import assert = require("assert");
+import {StateMachineStack} from "../lib/data_pipeline/state_machine-stack";
 
 test('S3 Bucket Created', () => {
     const app = new cdk.App();
@@ -70,4 +71,17 @@ test('Lambda B Has S3 Access In Execution Role', () => {
     assert(s3PolicyFound);
 });
 
-// TODO: More tests, especially for the state machine
+test('State Machine Is Scheduled', () => {
+    const app = new cdk.App();
+    // WHEN
+    const dataPipelineStack = new DataPipelineStack(
+        app, 'MyTestStack', "Dev", {env: {account: '704868603297', region: 'eu-west-2'}});
+    const stateMachineStack = dataPipelineStack.getStateMachineStack()
+    // THEN
+    const template = Template.fromStack(stateMachineStack);
+    template.hasResourceProperties("AWS::Events::Rule", {
+        ScheduleExpression: 'rate(1 hour)',
+        State: 'ENABLED'
+    })
+});
+

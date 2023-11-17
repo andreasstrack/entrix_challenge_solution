@@ -5,6 +5,9 @@ import {getCodeLambdaA, getCodeLambdaB} from "../../code/lambda_code";
 import {StateMachineStack} from "./state_machine-stack";
 
 export class DataPipelineStack extends cdk.Stack {
+
+    stateMachineStack: StateMachineStack;
+
     constructor(scope: Construct, id: string, stage: string, props: cdk.StackProps) {
         super(scope, stagedId(id, stage), props);
 
@@ -35,10 +38,14 @@ export class DataPipelineStack extends cdk.Stack {
         });
         lambdaB.addEnvironment("LOG_BUCKET", orderResultsBucket.bucketName);
 
-        const stateMachine = new StateMachineStack(this, "StateMachine", stage, {
+        this.stateMachineStack = new StateMachineStack(this, "StateMachine", stage, {
             lambdaA: lambdaA,
             lambdaB: lambdaB,
             stackProps: props
         });
+    }
+
+    getStateMachineStack(): StateMachineStack {
+        return this.stateMachineStack;
     }
 }

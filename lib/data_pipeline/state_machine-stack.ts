@@ -1,12 +1,15 @@
 import * as cdk from "aws-cdk-lib";
+import * as events from 'aws-cdk-lib/aws-events';
 import * as lambda from "aws-cdk-lib/aws-lambda"
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 
 import {Construct} from "constructs";
 import {stagedId} from "../util";
+import {Duration} from "aws-cdk-lib";
 
 interface StepFunctionProps {
     lambdaA: lambda.Function,
@@ -20,10 +23,19 @@ export class StateMachineStack extends cdk.Stack {
 
         const definition = this.buildDefinition(stage, props);
 
-        new sfn.StateMachine(this, stagedId('StateMachine', stage), {
+        const stateMachine = new sfn.StateMachine(this, stagedId('StateMachine', stage), {
             definitionBody: sfn.DefinitionBody.fromChainable(definition),
             timeout: cdk.Duration.seconds(20),
         });
+
+        this.scheduleStateMachine(stateMachine, Duration.hours(1));
+    }
+
+    scheduleStateMachine(stateMachine: sfn.StateMachine, duration: Duration) {
+        const rule = new events.Rule(this, 'StateMachineRule', {
+            schedule: events.Schedule.rate(duration),
+        });
+        rule.addTarget(new targets.SfnStateMachine(stateMachine));
     }
 
     buildDefinition(stage: string, props: StepFunctionProps): sfn.IChainable {

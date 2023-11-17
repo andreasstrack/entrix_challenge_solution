@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import {createStagedStacks} from "../lib/config/stages";
+import {CodePipelineStack} from "../lib/code_pipeline/code_pipeline-stack";
 
 const app = new cdk.App();
-createStagedStacks(app, process.env.STAGE);
-
-
+new CodePipelineStack(app, 'PipelineStack', {env: {account: '704868603297', region: 'eu-central-1'}})

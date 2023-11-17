@@ -17,6 +17,8 @@ test('Pipeline Has Expected Steps', () => {
             {"Name": "Build"},
             {"Name": "UpdatePipeline"},
             {"Name": "Dev"},
+            {"Name": "Staging"},
+            {"Name": "Prod"},
         ]
     });
 });

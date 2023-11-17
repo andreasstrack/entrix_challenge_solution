@@ -4,7 +4,6 @@ import { Template } from 'aws-cdk-lib/assertions';
 import {DataPipelineStack} from "../lib/data_pipeline/data_pipeline-stack";
 import {getCodeLambdaA, getCodeLambdaB} from "../code/lambda_code";
 import assert = require("assert");
-import {StateMachineStack} from "../lib/data_pipeline/state_machine-stack";
 
 test('S3 Bucket Created', () => {
     const app = new cdk.App();

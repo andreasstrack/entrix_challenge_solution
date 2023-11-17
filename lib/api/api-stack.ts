@@ -2,7 +2,6 @@ import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway"
 import * as lambda from "aws-cdk-lib/aws-lambda"
 import {Construct} from "constructs";
-import {stagedId} from "../util";
 import {getCodePostOrdersLambda} from "../../code/lambda_code";
 
 interface ResourceProps {
@@ -12,7 +11,7 @@ interface ResourceProps {
 
 export class ApiStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stage: string, props: cdk.StackProps) {
-        super(scope, stagedId(id, stage), props);
+        super(scope, id, props);
 
         const api = this.createApiGateway(stage.toLowerCase())
         const postOrdersLambda = this.createPostOrdersLambda();

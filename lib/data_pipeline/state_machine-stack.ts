@@ -8,7 +8,6 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 
 import {Construct} from "constructs";
-import {stagedId} from "../util";
 import {Duration} from "aws-cdk-lib";
 
 interface StepFunctionProps {
@@ -19,11 +18,11 @@ interface StepFunctionProps {
 
 export class StateMachineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stage: string, props: StepFunctionProps) {
-        super(scope, stagedId(id, stage), props.stackProps);
+        super(scope, id, props.stackProps);
 
         const definition = this.buildDefinition(stage, props);
 
-        const stateMachine = new sfn.StateMachine(this, stagedId('StateMachine', stage), {
+        const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
             definitionBody: sfn.DefinitionBody.fromChainable(definition),
             timeout: cdk.Duration.seconds(20),
         });

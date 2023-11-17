@@ -5,9 +5,9 @@ import {DeploymentStage} from "./DeploymentStage";
 
 export const stageConfigurations = [
     // These would normally have different AWS accounts to separate stages completely.
-    {stageName: "Dev", manualApproval: false, stackProps: {env: {account: '704868603297', region: 'eu-central-1'}}},
+    {stageName: "Dev", manualApproval: true, stackProps: {env: {account: '704868603297', region: 'eu-central-1'}}},
     {stageName: "Staging", manualApproval: true, stackProps: {env: {account: '704868603297', region: 'eu-west-1'}}},
-    {stageName: "Prod", manualApproval: true, stackProps: {env: {account: '704868603297', region: 'eu-west-2'}}}
+    {stageName: "Prod", manualApproval: false, stackProps: {env: {account: '704868603297', region: 'eu-west-2'}}}
 ];
 
 export const DEFAULT_STAGE_NAME = stageConfigurations[0].stageName;
@@ -35,7 +35,7 @@ export class CodePipelineStack extends cdk.Stack {
                 }));
 
             if (stageConfig.manualApproval) {
-                stage.addPre(new pipelines.ManualApprovalStep('approval'))
+                stage.addPost(new pipelines.ManualApprovalStep('approval'))
             }
         });
     }

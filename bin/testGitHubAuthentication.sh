@@ -1,3 +1,5 @@
 #!/bin/zsh
 
-curl -H "Authorization: token <token-stored-in-secretManager>" https://api.github.com/users/andreasstrack
+TOKEN=$1
+
+curl -H "Authorization: token $TOKEN" -w "%{http_code}" https://api.github.com/users/andreasstrack

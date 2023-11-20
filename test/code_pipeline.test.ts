@@ -35,3 +35,48 @@ test('Tests Run in Pipeline', () => {
             "Source": {"BuildSpec": Match.stringLikeRegexp(".*npm test.*")}
         });
 });
+
+test('Dev and Staging Have Manual Approval in Post Step', () => {
+    const app = new cdk.App();
+    // WHEN
+    const stack = new CodePipelineStack(
+        app, 'MyTestStack', {env: {account: '704868603297', region: 'eu-west-2'}});
+    // THEN
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties('AWS::CodePipeline::Pipeline', {
+        Stages: Match.arrayWith([
+            Match.objectLike({
+                "Name": "Dev",
+                "Actions": Match.arrayWith([Match.objectLike({
+                    "ActionTypeId": {"Category": "Approval"},
+                    "RunOrder": findHighestRunOrderInPipelineStage(template, "Dev"),
+                })])
+            }),
+            Match.objectLike({
+                "Name": "Staging",
+                "Actions": Match.arrayWith([Match.objectLike({
+                    "ActionTypeId": {"Category": "Approval"},
+                    "RunOrder": findHighestRunOrderInPipelineStage(template, "Staging"),
+                })])
+            })
+        ])
+    });
+})
+
+function findHighestRunOrderInPipelineStage(template: Template, stageName: string): number {
+    template.resourceCountIs('AWS::CodePipeline::Pipeline', 1);
+    const theStages = Object.values(template.findResources('AWS::CodePipeline::Pipeline'))[0]["Properties"]["Stages"];
+    const theStage = findStageWithName(stageName, theStages);
+
+    return findHighestRunOrderInActions(theStage["Actions"]);
+}
+
+function findStageWithName(stageName: string, stages: any[]) {
+    return stages.find(stage => stage["Name"] === stageName);
+}
+
+function findHighestRunOrderInActions(actions: any[]): number {
+    return actions.map(action => action["RunOrder"])
+        .reduce((e1, e2) => Math.max(e1, e2))
+}

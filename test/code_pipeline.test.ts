@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
-import {Template} from 'aws-cdk-lib/assertions';
+import {Match, Template} from 'aws-cdk-lib/assertions';
 import {CodePipelineStack} from "../lib/code_pipeline/code_pipeline-stack";
-import * as assert from "assert";
 
 test('Pipeline Has Expected Steps', () => {
     const app = new cdk.App();
@@ -31,12 +30,8 @@ test('Tests Run in Pipeline', () => {
         app, 'MyTestStack', {env: {account: '704868603297', region: 'eu-west-2'}});
     // THEN
     const template = Template.fromStack(stack);
-
-    const buildProjects = template.findResources("AWS::CodeBuild::Project", {})
-    const cdkBuildKey = Object.keys(buildProjects)
-        .filter(key => key.startsWith("EntrixChallengePipelineBuildSynthCdkBuildProject"))[0];
-    const cdkBuildProject = buildProjects[cdkBuildKey];
-    const buildCommands: string[] = cdkBuildProject["Properties"]["Source"]["BuildSpec"].split("\n")
-    const npmTestCommandString = buildCommands.filter( command => command.includes('"npm test"'))[0]
-    assert(npmTestCommandString != undefined)
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+            "Description": "Pipeline step MyTestStack/Pipeline/Build/Synth",
+            "Source": {"BuildSpec": Match.stringLikeRegexp(".*npm test.*")}
+        });
 });

@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda'
-import { Template } from 'aws-cdk-lib/assertions';
+import {Match, Template} from 'aws-cdk-lib/assertions';
 import {DataPipelineStack} from "../lib/data_pipeline/data_pipeline-stack";
 import {getCodeLambdaA, getCodeLambdaB} from "../code/lambda_code";
 import assert = require("assert");
@@ -42,32 +42,23 @@ test('Lambda B Has S3 Access In Execution Role', () => {
     const stack = new DataPipelineStack(
         app, 'MyTestStack', "Dev", {env: {account: '704868603297', region: 'eu-west-2'}});
     // THEN
-    const resources = Template.fromStack(stack).findResources(
-        "AWS::IAM::Role", {
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties("AWS::IAM::Role", {
+            "Policies": [{
+                "PolicyName": "S3PutAccess",
+                "PolicyDocument": {
+                    "Statement": [{
+                        "Action": "s3:PutObject",
+                        "Effect": "Allow",
+                        "Resource": {
+                            "Fn::Join": ["", [{"Fn::GetAtt":
+                            [Match.stringLikeRegexp("OrderResultsBucketDev.*"), "Arn"]}, "/*"]]
+                        }
+                    }]
+                }
+            }]
         }
     );
-
-    var lambdaBRoleFound = false;
-    var s3PolicyFound = false;
-    for (const [key, value] of Object.entries(resources)) {
-        if (key.startsWith("LambdaB")) {
-            lambdaBRoleFound = true;
-
-            for (const managedPolicyArn of value['Properties']['ManagedPolicyArns']) {
-                // Expecting this kind of object here:
-                // {
-                //     'Fn::Join': [ '', [ 'arn:', [Object], ':iam::aws:policy/AmazonS3FullAccess' ] ]
-                // }
-                const arnString = managedPolicyArn['Fn::Join'][1].join('')
-                if (arnString.endsWith(":iam::aws:policy/AmazonS3FullAccess")) {
-                    s3PolicyFound = true;
-                }
-            }
-        }
-    }
-
-    assert(lambdaBRoleFound);
-    assert(s3PolicyFound);
 });
 
 test('State Machine Is Scheduled', () => {

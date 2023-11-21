@@ -70,7 +70,7 @@ test('State Machine Is Scheduled', () => {
     // THEN
     const template = Template.fromStack(stateMachineStack);
     template.hasResourceProperties("AWS::Events::Rule", {
-        ScheduleExpression: 'rate(1 hour)',
+        ScheduleExpression: 'rate(1 day)',
         State: 'ENABLED'
     })
 });

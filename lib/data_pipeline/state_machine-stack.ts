@@ -27,7 +27,7 @@ export class StateMachineStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(20),
         });
 
-        this.scheduleStateMachine(stateMachine, Duration.hours(1));
+        this.scheduleStateMachine(stateMachine, Duration.days(1));
     }
 
     scheduleStateMachine(stateMachine: sfn.StateMachine, duration: Duration) {
